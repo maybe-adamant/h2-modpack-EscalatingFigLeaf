@@ -8,7 +8,7 @@ game = rom.game
 modutil = mods['SGG_Modding-ModUtil']
 chalk = mods['SGG_Modding-Chalk']
 reload = mods['SGG_Modding-ReLoad']
-local lib = mods['adamant-Modpack_Lib'].public
+local lib = mods['adamant-Modpack_Lib']
 
 config = chalk.auto('config.lua')
 public.config = config
@@ -38,7 +38,7 @@ end
 
 local function registerHooks()
     modutil.mod.Path.Wrap("DionysusSkipTrait", function(baseFunc, args, traitData)
-        if not config.Enabled then return baseFunc(args, traitData) end
+        if not lib.isEnabled(config) then return baseFunc(args, traitData) end
         baseFunc(args, traitData)
         for _, trait in ipairs(CurrentRun.Hero.Traits) do
             if trait.Name == "PersistentDionysusSkipKeepsake" then
@@ -50,7 +50,7 @@ local function registerHooks()
     end)
 
     modutil.mod.Path.Wrap("EndEncounterEffects", function(baseFunc, currentRun, currentRoom, currentEncounter)
-        if not config.Enabled then return baseFunc(currentRun, currentRoom, currentEncounter) end
+        if not lib.isEnabled(config) then return baseFunc(currentRun, currentRoom, currentEncounter) end
         baseFunc(currentRun, currentRoom, currentEncounter)
         if currentEncounter == currentRoom.Encounter or currentEncounter == MapState.EncounterOverride then
             if HeroHasTrait("PersistentDionysusSkipKeepsake") then
@@ -63,7 +63,7 @@ local function registerHooks()
     end)
 
     modutil.mod.Path.Wrap("StartRoom", function(baseFunc, currentRun, currentRoom)
-        if not config.Enabled then return baseFunc(currentRun, currentRoom) end
+        if not lib.isEnabled(config) then return baseFunc(currentRun, currentRoom) end
         baseFunc(currentRun, currentRoom)
         if currentRoom.BiomeStartRoom then
             if HeroHasTrait("PersistentDionysusSkipKeepsake") then
@@ -89,11 +89,12 @@ modutil.once_loaded.game(function()
     loader.load(function()
         import_as_fallback(rom.game)
         registerHooks()
-        if config.Enabled then apply() end
-        if public.definition.dataMutation and not mods['adamant-Core'] then
+        if lib.isEnabled(config) then apply() end
+        if public.definition.dataMutation and not mods['adamant-Modpack_Core'] then
             SetupRunData()
         end
     end)
 end)
 
-lib.standaloneUI(public.definition, config, apply, restore)
+local uiCallback = lib.standaloneUI(public.definition, config, apply, restore)
+rom.gui.add_to_menu_bar(uiCallback)
