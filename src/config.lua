@@ -1,1 +1,4 @@
-return { Enabled = false }
+return {
+    Enabled = false,
+    DebugMode = false,
+}
