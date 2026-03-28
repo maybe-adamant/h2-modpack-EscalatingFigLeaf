@@ -27,7 +27,7 @@ public.definition = {
     tooltip  = "Dionysus Skip Chance starts at default value and increases by 13% after every encounter, resetting on biome start.",
     default  = false,
     dataMutation = false,
-    modpack = "h2-modpack",
+    modpack = "speedrun",
 }
 
 -- =============================================================================
